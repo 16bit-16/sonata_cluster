@@ -9,11 +9,22 @@ python-can gs_usb는 GS_CAN_MODE_HW_TIMESTAMP 플래그로 24바이트 프레임
 실행:   sudo python main.py
 """
 
+import sys
 import struct
 import logging
 import can
 import usb.core
 import usb.util
+import usb.backend.libusb1
+
+def _get_backend():
+    if sys.platform == "win32":
+        try:
+            import libusb_package
+            return usb.backend.libusb1.get_backend(find_library=libusb_package.find_library)
+        except Exception:
+            pass
+    return usb.backend.libusb1.get_backend()
 
 log = logging.getLogger(__name__)
 
@@ -49,7 +60,7 @@ class UCANInterface:
         self._send_count = 0
 
     def connect(self):
-        dev = usb.core.find(idVendor=_VID, idProduct=_PID)
+        dev = usb.core.find(idVendor=_VID, idProduct=_PID, backend=_get_backend())
         if dev is None:
             raise RuntimeError("UCAN 장치를 찾을 수 없습니다 (sudo 필요?)")
 
