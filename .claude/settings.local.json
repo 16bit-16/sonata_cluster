@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:m.blog.naver.com)",
+      "WebFetch(domain:blog.naver.com)",
+      "Bash(xcode-select -p)",
+      "Bash(clang++ --version)",
+      "Bash(curl -sL https://github.com/nicoklink/scs-sdk/archive/refs/heads/master.tar.gz)",
+      "Bash(tar xz --strip-components=1 scs-sdk-master/include -C sdk)",
+      "Bash(curl -sL \"https://github.com/nicoklink/scs-sdk/archive/refs/heads/master.tar.gz\" -o /tmp/scs-sdk.tar.gz)",
+      "Bash(tar tzf /tmp/scs-sdk.tar.gz)",
+      "Bash(curl -sL \"https://github.com/RenCloud/scs-sdk-plugin/archive/refs/heads/master.tar.gz\" -o /tmp/scs-sdk.tar.gz)",
+      "Read(//private/tmp/**)",
+      "Bash(tar xzf /tmp/scs-sdk.tar.gz --strip-components=3 scs-sdk-plugin-master/scs_sdk/include)",
+      "Bash(tar xzf /tmp/scs-sdk.tar.gz)",
+      "Bash(make)",
+      "Bash(brew install libusb)",
+      "Bash(find '/Users/bit/Library/Application Support/Steam/steamapps/common/Euro Truck Simulator 2' -name *.dylib)",
+      "Bash(ls /Users/bit/playground/ets2_cluster/*.py)"
+    ]
+  }
+}
