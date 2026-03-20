@@ -24,6 +24,7 @@ class TelemetryData:
     gear: int = 0                # 현재 기어 (음수=후진, 0=중립)
     engine_on: bool = False      # 엔진 켜짐 여부
     parking_brake: bool = False  # 주차 브레이크
+    abs_active: bool = False     # ABS 작동 중
     blinker_left: bool = False
     blinker_right: bool = False
     oil_pressure: float = 0.0   # 오일 압력 (kPa)

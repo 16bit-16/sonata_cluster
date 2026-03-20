@@ -127,7 +127,7 @@ class CANConverter:
             msg_rpm(d.rpm, self._counter),
             msg_gear(d.gear),
             msg_coolant(d.coolant_temp),
-            msg_brake(brk_warn=d.parking_brake),
+            msg_brake(abs_warn=d.abs_active, brk_warn=d.parking_brake),
         ]
         self._counter = (self._counter + 1) & 0xFF
         return msgs

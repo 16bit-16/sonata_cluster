@@ -17,6 +17,7 @@ OG_FMT  = '<I4sHBB7fII3f16s16si'
 OG_SIZE = struct.calcsize(OG_FMT)  # 96 bytes
 
 # DashLights / ShowLights bits
+OG_ABS       = 0x0040
 OG_HANDBRAKE = 0x2000
 
 
@@ -44,20 +45,21 @@ class BeamNGReader:
         return self._data
 
     def _parse(self, raw: bytes):
-        (time_, car, flags, gear, plid,
-         speed, rpm, turbo, eng_temp, fuel, oil_p, oil_t,
-         dash_lights, show_lights,
-         throttle, brake, clutch,
-         display1, display2, id_) = struct.unpack(OG_FMT, raw)
+        (_, _, _, gear, _,
+         speed, rpm, _, eng_temp, fuel, _, _,
+         _, show_lights,
+         _, _, _,
+         _, _, _) = struct.unpack(OG_FMT, raw)
 
         d = self._data
-        d.speed_ms      = speed        # m/s
+        d.speed_ms      = speed
         d.rpm           = rpm
-        d.coolant_temp  = eng_temp     # celsius
-        d.fuel          = fuel         # 0.0~1.0 (ratio)
+        d.coolant_temp  = eng_temp
+        d.fuel          = fuel
         d.fuel_capacity = 1.0
         d.engine_on     = rpm > 100
         d.parking_brake = bool(show_lights & OG_HANDBRAKE)
+        d.abs_active    = bool(show_lights & OG_ABS)
 
         # Gear: 0=Reverse, 1=Neutral, 2=1st, 3=2nd ...
         if gear == 0:
