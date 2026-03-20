@@ -118,7 +118,14 @@ class UCANInterface:
         if self._dev:
             try:
                 _ctrl(self._dev, _BREQ_MODE, struct.pack("<II", _MODE_RESET, 0))
+            except Exception:
+                pass
+            try:
                 usb.util.release_interface(self._dev, 0)
+            except Exception:
+                pass
+            try:
+                usb.util.dispose_resources(self._dev)
             except Exception:
                 pass
             self._dev = None
