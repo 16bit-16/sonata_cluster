@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 # acpmf_physics 첫 부분 (필요한 필드만 파싱)
 # int packetId, float gas, brake, fuel, gear, rpms, steerAngle, speedKmh
-AC_PHYSICS_FMT  = '<i7f'
+AC_PHYSICS_FMT  = '<ifffifff'  # gear는 int (float로 읽으면 항상 0)
 AC_PHYSICS_SIZE = 4096
 
 # acpmf_graphics 첫 부분

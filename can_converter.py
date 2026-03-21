@@ -28,9 +28,10 @@ GEAR_NIBBLE: dict[str, int] = {
     "1": 5, "2": 5, "3": 5,  # 수동단은 D로 표시
 }
 
-TEMP_COLD   = 200
-TEMP_NORMAL = 213
-TEMP_HOT    = 230
+TEMP_FLOOR  = 180  # 바늘 최저 (엔진 냉간)
+TEMP_COLD   = 200  # C 마크 (~4/10)
+TEMP_NORMAL = 213  # 정상 범위
+TEMP_HOT    = 230  # H 마크
 
 
 def _make(arbitration_id: int, data: bytes) -> can.Message:
@@ -90,9 +91,14 @@ def msg_gear(gear: str | int) -> can.Message:
 
 
 def msg_coolant(celsius: float) -> can.Message:
-    """0x329: 수온계 (byte[1])"""
-    if celsius <= 60:
-        temp_byte = TEMP_COLD
+    """0x329: 수온계 (byte[1])
+    FLOOR(180)=최저  COLD(200)=C마크  NORMAL(213)=정상  HOT(230)=H마크
+    """
+    if celsius <= 20:
+        temp_byte = TEMP_FLOOR
+    elif celsius <= 60:
+        ratio = (celsius - 20) / (60 - 20)
+        temp_byte = int(TEMP_FLOOR + ratio * (TEMP_COLD - TEMP_FLOOR))
     elif celsius >= 110:
         temp_byte = TEMP_HOT
     else:

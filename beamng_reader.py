@@ -17,8 +17,10 @@ OG_FMT  = '<I4sHBB7fII3f16s16si'
 OG_SIZE = struct.calcsize(OG_FMT)  # 96 bytes
 
 # DashLights / ShowLights bits
-OG_ABS       = 0x0040
+OG_SIGNAL_L  = 0x0004
+OG_SIGNAL_R  = 0x0040  # BeamNG: 표준 LFS(0x0008)와 다름
 OG_HANDBRAKE = 0x2000
+# OG_ABS: BeamNG 매핑 미확인, 비활성화
 
 
 class BeamNGReader:
@@ -58,8 +60,9 @@ class BeamNGReader:
         d.fuel          = fuel
         d.fuel_capacity = 1.0
         d.engine_on     = rpm > 100
-        d.parking_brake = bool(show_lights & OG_HANDBRAKE)
-        d.abs_active    = bool(show_lights & OG_ABS)
+        d.parking_brake  = bool(show_lights & OG_HANDBRAKE)
+        d.blinker_left   = bool(show_lights & OG_SIGNAL_L)
+        d.blinker_right  = bool(show_lights & OG_SIGNAL_R)
 
         # Gear: 0=Reverse, 1=Neutral, 2=1st, 3=2nd ...
         if gear == 0:
