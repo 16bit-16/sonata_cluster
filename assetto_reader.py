@@ -45,6 +45,11 @@ class AssettoCorsaReader:
             _, _, _, fuel, gear, rpms, _, speed_kmh = \
                 struct.unpack_from('<ifffifff', raw, 0)
 
+            # 디버그: 처음 8개 필드 raw 값 출력 (나중에 제거)
+            debug_vals = struct.unpack_from('<8f', raw, 0)
+            log.debug(f"AC raw floats[0-7]: {[f'{v:.1f}' for v in debug_vals]}")
+            log.debug(f"AC gear={gear} rpms={rpms:.0f} speed={speed_kmh:.1f}")
+
             # 타이어 코어 온도 평균 → 수온 대용 (offset 152)
             tyre_temps = struct.unpack_from('<4f', raw, 152)
             avg_tyre   = sum(tyre_temps) / 4
