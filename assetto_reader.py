@@ -12,15 +12,11 @@ from telemetry_reader import TelemetryData
 
 log = logging.getLogger(__name__)
 
-# acpmf_physics 첫 부분 (필요한 필드만 파싱)
-# int packetId, float gas, brake, fuel, gear, rpms, steerAngle, speedKmh
-AC_PHYSICS_FMT  = '<ifffifff'  # gear는 int (float로 읽으면 항상 0)
-AC_PHYSICS_SIZE = 4096
-
-# acpmf_graphics 첫 부분
-# int packetId, int status, int session, ...
-AC_GRAPHICS_FMT  = '<iii'
-AC_GRAPHICS_SIZE = 4096
+# acpmf_physics 오프셋
+# 0:packetId(i) 4:gas 8:brake 12:fuel 16:gear(i) 20:rpms 24:steer 28:speedKmh
+# 152:tyreCoreTemperature[4]
+AC_PHYSICS_SIZE  = 4096
+AC_READ_SIZE     = 168   # tyreCoreTemperature 끝까지 (152 + 4×4)
 
 
 class AssettoCorsaReader:
@@ -43,17 +39,23 @@ class AssettoCorsaReader:
             return self._data
         try:
             self._physics.seek(0)
-            raw = self._physics.read(struct.calcsize(AC_PHYSICS_FMT))
-            packet_id, gas, brake, fuel, gear, rpms, steer, speed_kmh = \
-                struct.unpack(AC_PHYSICS_FMT, raw)
+            raw = self._physics.read(AC_READ_SIZE)
+
+            # 기본 필드 (offset 0)
+            _, _, _, fuel, gear, rpms, _, speed_kmh = \
+                struct.unpack_from('<ifffifff', raw, 0)
+
+            # 타이어 코어 온도 평균 → 수온 대용 (offset 152)
+            tyre_temps = struct.unpack_from('<4f', raw, 152)
+            avg_tyre   = sum(tyre_temps) / 4
 
             d = self._data
-            d.speed_ms     = speed_kmh / 3.6
-            d.rpm          = rpms
-            d.fuel         = fuel          # 0.0~1.0
+            d.speed_ms      = speed_kmh / 3.6
+            d.rpm           = max(0.0, rpms)
+            d.fuel          = fuel
             d.fuel_capacity = 1.0
-            d.engine_on    = rpms > 100
-            d.coolant_temp = 90.0          # AC 공유메모리에 수온 없음
+            d.engine_on     = rpms > 100
+            d.coolant_temp  = avg_tyre  # 타이어 온도 ≈ 20°C(냉간) ~ 90°C(워밍업)
 
             # Gear: 0=R, 1=N, 2=1st, 3=2nd ...
             if gear == 0:
